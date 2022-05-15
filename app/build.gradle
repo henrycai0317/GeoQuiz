@@ -29,6 +29,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    //添加ViewBinding設置，如果有多個module要使用的話，要個別添加
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
