@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.viewbinding.ViewBinding
 import com.example.geoquiz.databinding.ActivityMainBinding
 
@@ -15,16 +17,9 @@ class MainActivity : AppCompatActivity() {
     //使用lateinit修飾符號告訴編譯器，會提供非空值的view值
     private lateinit var viewBinding:ActivityMainBinding
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia,true),
-        Question(R.string.question_oceans,true),
-        Question(R.string.question_mideast,false),
-        Question(R.string.question_africa,false),
-        Question(R.string.question_americas,true),
-        Question(R.string.question_asia,true),
-    )
-
-    private var currentIndex = 0
+    private val quizViewModel:QuizViewModel by lazy {
+        ViewModelProvider(this).get(QuizViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         //在onCreate()方法調用 setContentView後，所有的視圖物件才會被放入到手機內存中
         setContentView(viewBinding.root)
+
 
         initView()
     }
@@ -73,12 +69,12 @@ class MainActivity : AppCompatActivity() {
 
 
         viewBinding.nextButton.setOnClickListener {
-            currentIndex = (currentIndex+1)%questionBank.size
+            quizViewModel.moveToNext()
             questionUpdate()
         }
 
         viewBinding.prevButton.setOnClickListener {
-            currentIndex = (currentIndex-1+questionBank.size)%questionBank.size
+            quizViewModel.moveToPrevd()
             questionUpdate()
         }
 
@@ -87,12 +83,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun questionUpdate() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         viewBinding.questionTextView.setText(questionTextResId)
     }
 
     private fun checkAnswer(userAnswer : Boolean){
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
 
         val messageResId = if(userAnswer == correctAnswer) {
             R.string.correct_toast
